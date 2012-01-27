@@ -1,4 +1,29 @@
 /*
+ * Adds a "Block this user" or "Unblock this user" link to a user's profile
+ * page. The user parameter is a User object.
+ */
+function addBlockLink(user) {
+	blockedUsers = getBlockedUsers();
+	blockedUserIDs = [];
+	blockText = "Block this user";
+
+	if (blockedUsers) {
+		blockedUsers.forEach(function(value, index, array){
+			blockedUserIDs.push(value.userid);
+		});
+		
+		if (jQuery.inArray(user.userid, blockedUserIDs) != -1) {
+			blockText = "Unblock this user";
+		}
+	}
+	$('#block_link').text(blockText);
+	$('#block_link').bind("click", function(){
+		alert(toggleUserOnBlockList(user));
+		return false;
+	});
+}
+
+/*
  * This function combs the scaffolded message boards list (message.aspx) and
  * obscures the names of blocked users as "a blocked user." God forbid you
  * accidentally see a blocked user's name. You can hover over the link if
@@ -125,6 +150,28 @@ function getBlockedUsers() {
 		return false;
 	}
 }
+
+/*
+ * Hides a post made by a blocked user.
+ */
+function hideMsg(msg) {
+	console.log("hiding post " + msg.attr("id"));
+	postCell = msg.parent();
+	hiddenMsg = msg.hide();
+	toggleLink = $(document.createElement('a'));
+	toggleLink.attr("href", "#" + msg.attr("id").substr(8));
+	toggleLink.addClass("post_toggle");
+	toggleLink.text("Show this post");
+	postCell.prepend(toggleLink);
+	toggleLink.append(hiddenMsg);
+	
+	toggleLink.bind("click", function() {
+		postContent = $(this).children();
+		$(this).replaceWith(postContent);
+		postContent.show();
+	});
+};
+
 
 /*
  * Appends a list of blocked users to the target element.
