@@ -89,7 +89,7 @@ function checkWolfWebURL() {
 */
 // And the whole thing boils down to this stub. :P
 checkLogin();
-checkWolfWebURL();
+//checkWolfWebURL();
 	if (debugMode) {
 		document.title += " - Debugging";
 		console.groupEnd("Better Wolf Web");
