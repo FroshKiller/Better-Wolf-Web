@@ -67,8 +67,30 @@ function checkLogin() {
 		$(userNameElement).attr("id", "username");
 
 		GM_setValue("username", $(userNameElement).text());
+		if (debugMode) {
+			console.log("Logged in as " + GM_getValue("username"));
+		}
 	} else {
 		return;
+	}
+}
+
+/*
+ * This procedure handles header & footer scaffolding common to all pages as
+ * well as some standard script set-up.
+ */
+function scaffoldCommonElements() {
+	if (debugMode) {
+		console.group("Common elements");
+	}
+
+	getURLParameters();
+	//addStyles();
+	checkLogin();
+	//createWolfLink();
+
+	if (debugMode) {
+		console.groupEnd("Common elements");
 	}
 }
 

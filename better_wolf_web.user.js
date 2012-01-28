@@ -24,6 +24,8 @@ if (window.top != window.self) {
 		console.time("Overall script execution");
 	}
 
+	scaffoldCommonElements();
+	
 	switch(location.pathname) {
 		case "/message.aspx":
 			scaffoldMessageBoards();
@@ -87,9 +89,7 @@ function checkWolfWebURL() {
 	});
 };
 */
-// And the whole thing boils down to this stub. :P
-checkLogin();
-//checkWolfWebURL();
+
 	if (debugMode) {
 		document.title += " - Debugging";
 		console.groupEnd("Better Wolf Web");
