@@ -133,7 +133,7 @@ function scaffoldMessageBoards() {
 		threadLink = boardCells.eq(3).addClass('board_last_post').children('a:first').addClass('thread_link');
 		userLink = boardCells.eq(3).children('a:last').addClass('user_link');
 
-		sectionNum = sectionLink("attr").split("=");
+		sectionNum = sectionLink.attr("href").split("=");
 		sectionNum = sectionNum[1].split("&");
 		$(this).attr("id", "section_" + sectionNum[0]);
 		
