@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name          Better Wolf Dev
+// @name          Better Wolf Web
 // @author        Jonathan Hamilton
 // @namespace     http://jlhamilt.freeshell.org/
 // @version       1.0
@@ -8,19 +8,28 @@
 // @include       http://*brentroad.com/*
 // @exclude       http://site3.thewolfweb.com/*
 // @require       http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js
-// @require       http://jlhamilt.freeshell.org/bwd/bww.blocking.js
-// @require       http://jlhamilt.freeshell.org/bwd/scaffold.js
-// @require       http://jlhamilt.freeshell.org/bwd/gm_jq_xhr.js
+// @require       https://raw.github.com/FroshKiller/Better-Wolf-Web/master/bww.commands.js
+// @require       https://raw.github.com/FroshKiller/Better-Wolf-Web/master/bww.blocking.js
+// @require       https://raw.github.com/FroshKiller/Better-Wolf-Web/master/scaffold.js
+// @require       https://raw.github.com/FroshKiller/Better-Wolf-Web/master/gm_jq_xhr.js
 // ==/UserScript==
 
 if (window.top != window.self) {
 	$.noop(); // Don't run the script if the page is in an IFRAME.
 } else {
-
+	switch(location.pathname) {
+		case "/message.aspx":
+			scaffoldMessageBoards();
+			break;
+		default:
+			break;
+	}
+	
 
 // This function just checks the document's URL against a regular expression and
 // calls different functions based on what it finds. There may be a better way
 // to do this later.
+/*
 function checkWolfWebURL() {
 	currentURL = location.href;
 
@@ -70,9 +79,8 @@ function checkWolfWebURL() {
 		return false;
 	});
 };
-
+*/
 // And the whole thing boils down to this stub. :P
-GM_registerMenuCommand("Clear blocked users list", function() { GM_deleteValue("blocked_users"); });
 checkLogin();
 checkWolfWebURL();
 }
