@@ -8,6 +8,7 @@
 // @include       http://*brentroad.com/*
 // @exclude       http://site3.thewolfweb.com/*
 // @require       http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js
+// @require       https://raw.github.com/FroshKiller/Better-Wolf-Web/master/bww.utils.js
 // @require       https://raw.github.com/FroshKiller/Better-Wolf-Web/master/bww.commands.js
 // @require       https://raw.github.com/FroshKiller/Better-Wolf-Web/master/bww.blocking.js
 // @require       https://raw.github.com/FroshKiller/Better-Wolf-Web/master/scaffold.js
