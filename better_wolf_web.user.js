@@ -17,6 +17,13 @@
 if (window.top != window.self) {
 	$.noop(); // Don't run the script if the page is in an IFRAME.
 } else {
+	debugMode = GM_getValue("debug_mode", false);
+
+	if (debugMode) {
+		console.group("Better Wolf Web");
+		console.time("Overall script execution");
+	}
+
 	switch(location.pathname) {
 		case "/message.aspx":
 			scaffoldMessageBoards();
@@ -83,4 +90,8 @@ function checkWolfWebURL() {
 // And the whole thing boils down to this stub. :P
 checkLogin();
 checkWolfWebURL();
+	if (debugMode) {
+		document.title += " - Debugging";
+		console.groupEnd("Better Wolf Web");
+	}
 }

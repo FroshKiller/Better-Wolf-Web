@@ -19,8 +19,4 @@ GM_registerMenuCommand("Toggle debug mode",
 	function() {
 		debugMode = GM_getValue("debug_mode", false);
 		GM_setValue("debug_mode", !debugMode);
-
-		if (debugMode) {
-			document.title += ' - Debugging Mode ON';
-		}
 	});
