@@ -26,7 +26,7 @@ if (window.top != window.self) {
 	}
 
 	scaffoldCommonElements();
-	
+
 	switch(location.pathname) {
 		case "/message.aspx":
 			scaffoldMessageBoards();
