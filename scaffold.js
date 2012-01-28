@@ -45,8 +45,6 @@ function MessageBoardListing(board, threadid, topic, author, authorid) {
 /*
  * This function checks whether you are logged in and, if so, stores your user-
  * name for future use.
- * 
- * TODO: Does it make sense to return anything? Just set or unset the value.
  */
 function checkLogin() {
 	/*
@@ -69,9 +67,8 @@ function checkLogin() {
 		$(userNameElement).attr("id", "username");
 
 		GM_setValue("username", $(userNameElement).text());
-		return GM_getValue('username');
 	} else {
-		return false;
+		return;
 	}
 }
 
