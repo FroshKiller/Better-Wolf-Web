@@ -42,42 +42,118 @@ function MessageBoardListing(board, threadid, topic, author, authorid) {
 	this.authorid = authorid;
 }
 
-// This is probably extremely hackish.
-function filterUniqueUsers(users) {
-	var a = [];
-	var l = users.length;
-	for(var i=0; i<l; i++) {
-		for(var j=i+1; j<l; j++) {
-			// If this[i] is found later in the array
-			if (users[i].userid === users[j].userid)
-				j = ++i;
-		}
-		a.push(users[i]);
-	}
-	return a;
-};
-
-// This function checks whether you are logged in and, if so, stores your user-
-// name for future use.
+/*
+ * This function checks whether you are logged in and, if so, stores your user-
+ * name for future use.
+ * 
+ * TODO: Does it make sense to return anything? Just set or unset the value.
+ */
 function checkLogin() {
-	// Currently, the logged-in user's username only appears in a B element at
-	// the top of the page. The XPath expression is ugly, but it's the quickest
-	// path to the element we want.
+	/*
+	 * Currently, the logged-in user's username only appears in a B element at
+	 * the top of the page. The XPath expression is ugly, but it's the quickest
+	 * path to the element we want.
+	 */
 	userNameElement = document.evaluate('/html/body/table/tbody/tr/td/table/tbody/tr[2]/td/b', 
 	document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 
-	// If the element containing the username is found, return the text value of
-	// it (the username itself). Otherwise, return false.
+	/*
+	 * If the element containing the username is found, return the text value of
+	 * it (the username itself). Otherwise, return false.
+	 */
 	if (userNameElement) {
-		// Set an ID on the username element just in case we want to address it
-		// again later.
-		$(userNameElement).attr('id', 'username');
+		/*
+		 * Set an ID on the username element just in case we want to address it
+		 * again later.
+		 */
+		$(userNameElement).attr("id", "username");
 
-		GM_setValue('username', $(userNameElement).text());
+		GM_setValue("username", $(userNameElement).text());
 		return GM_getValue('username');
 	} else {
 		return false;
 	}
+}
+
+/*
+ * Parses the message boards list (message.aspx).
+ */
+function scaffoldMessageBoards() {
+
+	if (debugMode) {
+		console.groupCollapsed("Message Boards");
+	}
+
+	/*
+	 * First, identify the table containing the list of sections and add an ID
+	 * to it in case someone wants it later.
+	 */
+	sectionsTable = $("table.inbar");
+	sectionsTable.attr("id", "tww_sections");
+
+	/* 
+	 * Next, we give the TABLE a THEAD and move the initial row of column
+	 * headers out of the TBODY and into the THEAD. This is semantically
+	 * pleasing, and it will simplify further parsing of the threads list since
+	 * we won't be skipping the first row every time--we can treat all of the
+	 * TBODY's children equally.
+	 *
+	 * TODO: Replace the header row's TD elements with TH elements.
+	 */
+	sectionsTableHead = $(document.createElement("thead"));
+	sectionsTableHead.attr("id", "tww_sections_header");
+	sectionsTableBody = $("#tww_sections > tbody");
+	sectionsTableBody.attr("id", "tww_sections_body");
+	sectionsTableBody.before(sectionsTableHead);
+
+	sectionsTableHeaderRow = $("tww_sections_body > tr:first-child");
+	sectionsTableHeaderRow.attr("id", "tww_sections_header_row");
+	sectionsTableHeaderRow.remove().appendTo(sectionsTableHead);
+
+	/* 
+	 * Here, we select all the TR elements descended from the TBODY and add a
+	 * class identifying them.
+	 *
+	 * TODO: Add ID attributes to the rows signifying which message board
+	 * section they represent.
+	 */
+	sectionRows = $("#tww_sections_body > tr");
+	sectionRows.addClass("tww_section");
+
+	if (debugMode) {
+		console.time("Scaffolding section rows");		
+	}
+
+	sectionRows.each(function() {
+		boardCells = $(this).children();
+		boardCells.eq(0).addClass('board_status');
+		boardName = boardCells.eq(1).addClass('board_name').children("a:first").text();
+		boardCells.eq(2).addClass('board_topics');
+		sectionLink = boardCells.eq(1).children("a:first");
+		threadLink = boardCells.eq(3).addClass('board_last_post').children('a:first').addClass('thread_link');
+		userLink = boardCells.eq(3).children('a:last').addClass('user_link');
+
+		sectionNum = sectionLink("attr").split("=");
+		sectionNum = sectionNum[1].split("&");
+		$(this).attr("id", "section_" + sectionNum[0]);
+		
+		threadNum = threadLink.attr("href").split("=");
+		threadNum = threadNum[1].split("&");
+		threadLink.attr("id", "thread_" + threadNum[0]);
+		threadTopic = threadLink.text();
+
+		userNum = userLink.attr("href").split("=");
+		userLink.addClass("user_" + userNum[1]);
+		userName = userLink.text();
+
+		boardCells.eq(4).addClass('board_moderators').children('a').addClass('user_link');
+	});
+
+	if (debugMode) {
+		console.timeEnd("Scaffolding section rows");
+		console.groupEnd("Message Boards");
+	}
+	
 }
 
 // This function extracts semantically meaningful information from the message
