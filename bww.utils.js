@@ -3,7 +3,7 @@
  */
 function addGMValue(setting, string) {
 	if (debugMode) {
-		console.log('Adding value "' + string '" to ' + setting);
+		console.log("Adding value \"" + string + "\" to " + setting);
 	}
 
 	oldValues = JSON.parse(GM_getValue(setting));
