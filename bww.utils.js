@@ -1,4 +1,24 @@
 /*
+ * Adds a new object to an array stored as a Greasemonkey value.
+ */
+function addGMValue(setting, string) {
+	if (debugMode) {
+		console.log("Adding value \"" + string "\" to " + setting);
+	}
+
+	oldValues = JSON.parse(GM_getValue(setting));
+	oldValues = oldValues.push(string);
+	oldValues.sort();
+
+	newValues = JSON.stringify(oldValues);
+	GM_setValue(setting, newValues);
+
+	if (debugMode) {
+		console.dir(newValues);
+	}
+}
+
+/*
  * Returns an anchor element created with the supplied parameters.
  */
 function createLink(href, text, parameters) {
