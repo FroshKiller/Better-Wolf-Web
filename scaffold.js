@@ -174,81 +174,6 @@ function scaffoldMessageBoards() {
 	return(threadList);
 }
 
-// This function extracts semantically meaningful information from the message
-// board list and updates the page with more content-rich IDs, classes, and
-// other attributes.
-function parseMessageBoardList() {
-
-	messageBoardThreadListing = [];
-
-	// First, we identify the table containing the list of threads.
-	boardTable = $('table.inbar').attr('id', 'tww_board_table');
-
-	// Next, we give the TABLE a THEAD and move the initial row of column
-	// headers out of the TBODY and into the THEAD. This is semantically
-	// pleasing, and it will simplify further parsing of the threads list since
-	// we won't be skipping the first row every time--we can treat all of the
-	// TBODY's children equally.
-	//
-	// TODO: Replace the header row's TD elements with TH elements.
-	boardTableHead = $(document.createElement('thead')).attr('id', 'tww_board_table_header');
-	boardTableBody = $("#tww_board_table > tbody").attr('id', 'tww_board_table_body');
-	boardTableBody.before(boardTableHead);
-	boardTableHeaderRow = $('#tww_board_table_body > tr:first-child').attr('id', 'tww_board_table_header_row').remove().appendTo(boardTableHead);
-
-	// Here, we select all the TR elements descended from the TBODY and add a
-	// class identifying them.
-	//
-	// TODO: Add ID attributes to the rows signifying which message board
-	// section they represent.
-	$('#tww_board_table_body > tr').addClass('tww_board_row');
-
-	// Now we begin processing each message board row. The cells denote certain
-	// types of data about each board, so we'll class them to reflect that. You
-	// can probably figure out what is what. Originally, the code was a little
-	// more human-friendly, but this method is significantly faster. Think about
-	// it this way: This is the heavy lifting that will make the cool stuff
-	// easier to create, and you don't need to mess with it.
-	$('.tww_board_row').each(function() {
-		boardCells = $(this).children();
-		boardCells.eq(0).addClass('board_status');
-		boardName = boardCells.eq(1).addClass('board_name').children("a:first").text();
-		boardCells.eq(2).addClass('board_topics');
-		threadLink = boardCells.eq(3).addClass('board_last_post').children('a:first').addClass('thread_link');
-		userLink = boardCells.eq(3).children('a:last').addClass('user_link');
-
-		threadNum = threadLink.attr("href").split("=");
-		threadNum = threadNum[1].split("&");
-		threadLink.attr("id", "thread_" + threadNum[0]);
-		threadTopic = threadLink.text();
-
-		userNum = userLink.attr("href").split("=");
-		userLink.addClass("user_" + userNum[1]);
-		userName = userLink.text();
-
-		boardCells.eq(4).addClass('board_moderators').children('a').addClass('user_link');
-		
-		messageBoardThreadListing.push(
-			new MessageBoardListing(boardName, threadNum[0], threadTopic, userName, userNum[1])
-		);
-	});
-
-	// We collect all of the IMG elements descended from the board status cells,
-	// i.e. the "old" and "new" images, then we class the rows as either
-	// new_posts or old_posts depending. You could probably do without this,
-	// but it only adds about 25 ms to the page handling.
-	boardStatusImages = $('.board_status img');
-	boardStatusImages.filter("img[src*='new']").each(function() {
-		$(this).parent().parent().parent().addClass("new_posts");
-	});
-
-	boardStatusImages.filter("img[src*='old']").each(function() {
-		$(this).parent().parent().parent().addClass("old_posts");
-	});
-
-	return(messageBoardThreadListing);
-}
-
 // This function basically does the same as parseMessageBoardList() for a list
 // of threads within a section. It does a lot more work, though, since there is
 // much richer data to start with and an appalling lack of hooks to use it.
@@ -423,7 +348,9 @@ function scaffoldPost(post) {
 	return(scaffoldedPost);
 }
 
-// Okay, I bet you can't guess what this one does.
+/*
+ * Scaffolds a thread.
+ */
 function scaffoldThread() {
 
 	if (debugMode) {
@@ -473,6 +400,11 @@ function scaffoldThread() {
 	usersInThread = [];
 	postsInThread = [];
 
+	if (debugMode) {
+		console.groupCollapsed("Scaffolding posts");
+		console.time("Scaffolding posts");
+	}
+
 	// We'll class each post up so the data we want later will be easier to
 	// address.
 	postRows.each(function() {
@@ -481,6 +413,10 @@ function scaffoldThread() {
 		usersInThread.push(post.author); // Blocking is faster with a separate array.
 	});
 
+	if (debugMode) {
+		console.timeEnd("Scaffolding posts");
+		console.groupEnd("Scaffolding posts");
+	}
 	/*
 	 * Again, future sharing.
 	threadDescr = $("div.post_message_content:first").text();
@@ -546,13 +482,13 @@ function parseUserListPage() {
 	});
 }
 
-function parseUserProfile() {
-	tempParams = (location.search).match(/user=\d+/);
-	userID = tempParams[0].split("=")[1];
-	userName = document.title.substr(6);
+function scaffoldUserProfile() {
+	parameters = JSON.parse(GM_getValue("current_parameters"));
+	userID = parameters["user"];
+	userName = $("td.rightbold:contains('Username')").next().text();
 	currentUser = new User(userName, userID);
-	
-	userProfileBody = $('#ctl00_tblInfo tbody').attr("id", "user_profile_body");
+
+	userProfileBody = $("#ctl00_tblInfo tbody").attr("id", "user_profile_body");
 	userProfileBody.append('<tr><td class="medium" align="center" colspan="2"><a id="block_link" href="#">opa</a></td></tr>');
 	userProfileRows = userProfileBody.children();
 	userProfileRows.filter(":even").attr("bgcolor", "#E3E3E3");

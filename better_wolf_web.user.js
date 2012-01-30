@@ -34,6 +34,9 @@ if (window.top != window.self) {
 		case "/message_topic.aspx":
 			[postsInThread, usersInThread] = scaffoldThread(); // Firefox supports multiple returns.
 			break;
+		case "/user_info.aspx":
+			currentUser = scaffoldUserProfile();
+			break;
 		default:
 			break;
 	}
