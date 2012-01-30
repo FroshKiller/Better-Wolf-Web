@@ -174,70 +174,90 @@ function scaffoldMessageBoards() {
 	return(threadList);
 }
 
-// This function basically does the same as parseMessageBoardList() for a list
-// of threads within a section. It does a lot more work, though, since there is
-// much richer data to start with and an appalling lack of hooks to use it.
-function parseThreadsList() {
+/*
+ * Scaffolds a message board section's thread list.
+ */
+function scaffoldThreads() {
+
+	if (debugMode) {
+		console.groupCollapsed("Scaffolding threads");
+	}
+	parameters = JSON.parse(GM_getValue("current_parameters"));
+
 	// Which section are we viewing?
-	sectionNum = (location.search).match(/section=\d+/)[0].split("=")[1];
-	GM_setValue("current_section_id", sectionNum);
-	GM_setValue("current_section", document.title.substr(6));
+	sectionID = parameters["section"];
+	GM_setValue("current_section_id", sectionID);
+	GM_setValue("current_section", $("#ctl00_section > option[selected='true']").text().trim());
 	$(window).unload(function () {
 		GM_deleteValue("current_section_id");
 		GM_deleteValue("current_section");
 	});
 
-	// Again, we identify the TABLE we're interested in and build a new THEAD to
-	// separate the column headers from the thread rows.
-	//
-	// TODO: Replace the header row's TD elements with TH elements.
-	threadTable = $('table.inbar').attr('id', 'tww_thread_table');
+	/* Again, we identify the TABLE we're interested in and build a new THEAD to
+	 * separate the column headers from the thread rows.
+	 *
+	 * TODO: Replace the header row's TD elements with TH elements.
+	 */
+	threadTable = $("table.inbar");
+	threadTable.attr("id", "tww_thread_table");
 
-	threadTableBody = $('#tww_thread_table > tbody').attr('id', 'tww_thread_table_body');
+	threadTableBody = $("#tww_thread_table > tbody");
+	threadTableBody.attr("id", "tww_thread_table_body");
 
-	threadTableHeaderRow = $('#tww_thread_table_body > tr:first-child').attr('id', 'tww_thread_table_header_row');
+	threadTableHeaderRow = $("#tww_thread_table_body > tr:first-child");
+	threadTableHeaderRow.attr("id", "tww_thread_table_header_row");
 
-	threadTableHead = document.createElement('thead');
-	threadTableHead.setAttribute('id', 'tww_thread_table_header');
+	threadTableHead = $(document.createElement("thead"));
+	threadTableHead.attr("id", "tww_thread_table_header");
 	threadTableBody.before(threadTableHead);
 
-	$('#tww_thread_table_header_row').remove().appendTo($('#tww_thread_table_header'));
+	$("#tww_thread_table_header_row").remove().appendTo(threadTableHead);
 
-	// And again, we add classes to each of the rows we're actually interested
-	// in to reflect that they contain thread information.
-	threadRows = $('#tww_thread_table_body > tr').addClass('tww_thread_row');
+	/* And again, we add classes to each of the rows we're actually interested
+	 * in to reflect that they contain thread information.
+	 */
+	threadRows = $("#tww_thread_table_body > tr").addClass("tww_thread_row");
 
-	threadListing = [];
+	threads = [];
 
-	// Just like with the message boards list, we're going to just break down
-	// each cell, take what we need, and build on to the document. This run of
-	// code takes the longest to run. :P
-	$('.tww_thread_row').each(function() {
+	if (debugMode) {
+		console.time("Scaffolding threads");
+	}
+
+	/* Just like with the message boards list, we're going to just break down
+	 * each cell, take what we need, and build on to the document. This run of
+	 * code takes the longest to run. :P
+	 */
+	threadRows.each(function() {
 		threadRow = $(this);
 		threadCells = threadRow.children();
-		threadCells.eq(0).addClass('thread_status');
-		topicLink = threadCells.eq(1).addClass('thread_topic').children('a:first').addClass('thread_link');
+		threadCells.eq(0).addClass("thread_status");
+		threadLink = threadCells.eq(1).addClass("thread_topic").children("a:first").addClass("thread_link");
 		
-		threadNum = topicLink.attr("href").split("=");
-		threadTopic = topicLink.text();
-		topicLink.parent().parent().attr('id', 'thread_' + threadNum[1]);
+		threadID = topicLink.attr("href").split("=")[1];
+		threadTopic = threadLink.text();
+		topicLink.parent().parent().attr("id", "thread_" + threadID);
 
-		threadCells.eq(2).addClass('thread_author');
+		threadCells.eq(2).addClass("thread_author");
 		
-		authorLink = threadCells.eq(2).children('a:first');
-		userNum = authorLink.attr("href").split("=");
+		authorLink = threadCells.eq(2).children("a:first");
+		userID = authorLink.attr("href").split("=")[1];
 		userName = authorLink.text();
-		authorLink.parent().parent().addClass("thread_by_" + userNum[1]);
+		authorLink.parent().parent().addClass("thread_by_" + userID);
 
-		threadListing.push(new ThreadListing(threadNum[1], threadTopic, userName, userNum[1]));
+		threads.push(new Thread(threadID, threadTopic, userName, userID, sectionID));
 
-		threadCells.eq(3).addClass('thread_replies');
-		threadCells.eq(4).addClass('thread_views');
-		threadCells.eq(5).addClass('thread_last_post').children('a:first').addClass('user_link');
+		threadCells.eq(3).addClass("thread_replies");
+		threadCells.eq(4).addClass("thread_views");
+		threadCells.eq(5).addClass("thread_last_post").children("a:first").addClass("user_link");
 	});
 
-	// See the image handling in parseMessageBoardList() for more.
-	threadStatusImages = $('.thread_status img');
+	if (debugMode) {
+		console.table(threads);
+		console.timeEnd("Scaffolding threads");
+	}
+
+	threadStatusImages = $(".thread_status img");
 	threadStatusImages.filter("img[src*='new']").each(function() {
 		$(this).parent().parent().addClass("new_posts");
 	});
@@ -250,7 +270,10 @@ function parseThreadsList() {
 		$(this).parent().parent().addClass("locked");
 	});
 
-	return(threadListing);
+	if (debugMode) {
+		console.groupEnd("Scaffolding threads");
+	}
+	return(threads);
 }
 
 // This function applies descriptive classes to three types of images: smileys,
@@ -465,21 +488,6 @@ function wolfWebDialog(id, title, content) {
 	  '_content">'
 	   + content + 
 	   '</div></td></tr></tbody></table></td></tr></tbody></table>');
-}
-
-function parseUserListPage() {
-	$('table.inbar:last').attr("id", "users_list");
-	userRows = $('table#users_list tr');
-	userRows.each(function() {
-		userRow = $(this);
-		userLink = userRow.children().eq(1).children();
-		userNum = userLink.attr("href").split("=");
-		userName = userLink.text();
-		postsCell = userRow.children().eq(3);
-		if (postsCell.text() != "0 posts") {
-			postsCell.wrapInner('<a class="plain search_posts_link" title="Search for ' + userName + '\'s posts" href="message_search.aspx?type=posts&amp;username=' + encodeURI(userName) + "></a>");
-		}
-	});
 }
 
 function scaffoldUserProfile() {

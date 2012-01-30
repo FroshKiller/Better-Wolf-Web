@@ -31,6 +31,9 @@ if (window.top != window.self) {
 		case "/message.aspx":
 			threadList = scaffoldMessageBoards();
 			break;
+		case "/message_section.aspx":
+			threadList = scaffoldThreads();
+			break;
 		case "/message_topic.aspx":
 			[postsInThread, usersInThread] = scaffoldThread(); // Firefox supports multiple returns.
 			break;
