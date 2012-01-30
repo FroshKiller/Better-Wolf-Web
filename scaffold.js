@@ -390,6 +390,7 @@ function scaffoldPost(post) {
 	$(document.createElement("br")).appendTo(parentSpan);
 	sendPM.appendTo(parentSpan);
 
+	$(document.createElement("br")).appendTo(parentSpan);
 	viewPhotos = createLink("photo_folder.aspx?user=" + userID, "view photos", {
 		title: "View " + userName + "'s photo gallery",
 		classes: ["photo_gallery_link"]
