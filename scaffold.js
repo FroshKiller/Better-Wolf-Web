@@ -519,12 +519,13 @@ function scaffoldUserProfile() {
 function scaffoldSettingsPage() {
 	settingsBody = $("#ctl00_lnkUser").parent().parent().parent();
 	settingsBody.append('<tr><td>&nbsp;Better Wolf Web Settings</td></tr>');
-	settingsBody.append('<tr><td><form action="javascript:return(false);" id="bww_settings_form" name="bww_settings_form"><table cellspacing="0" cellpadding="6" border="0" style="width:100%;border-collapse:collapse;" class="inbar" id="bww_settings_table"><tbody><tr id="debugmode" style="background-color:#E3E3E3;"></tr></tbody></table></td></tr></form>');
+	settingsBody.append('<tr><td><form action="javascript:return(false);" id="bww_settings_form" name="bww_settings_form"><table cellspacing="0" cellpadding="6" border="0" style="width:100%;border-collapse:collapse;" class="inbar" id="bww_settings_table"><tbody id="bww_settings_body"><tr id="debugmode" style="background-color:#E3E3E3;"></tr></tbody></table></td></tr></form>');
 	debugModeRow = $("#debugmode");
 	debugModeRow.append('<td style="width:220px;white-space:nowrap;" class="rightbold">Debug Mode :</td>');
 	debugModeRow.append('<td><input type="radio" name="debug_mode" value="true">On <input type="radio" name="debug_mode" value="false"> Off</td>');
 	debugMode = GM_getValue("debug_mode", false);
 	$("input[name='debug_mode'][value='" + debugMode + "']").attr("checked", "true");
+	$("#bww_settings_body").append('<tr><td align="center><input type="submit" value="Save Preferences" class="button"></td></tr>');
 }
 
 function parsePhotoPage() {
