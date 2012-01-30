@@ -374,7 +374,7 @@ function scaffoldPost(post) {
 	 * TODO: Extend the post count as a link to search for all the users' posts.
 	 */
 	
-	userLink = authorCell.children("a[href*='user_info']");
+	userLink = authorCell.children("span").children("a[href*='user_info']");
 	userLink.addClass("user_link");
 	userLinkURL = userLink.attr("href");
 	userID = userLinkURL.split("=")[1];
