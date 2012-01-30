@@ -40,6 +40,9 @@ if (window.top != window.self) {
 		case "/user_info.aspx":
 			currentUser = scaffoldUserProfile();
 			break;
+		case "/user_settings.aspx":
+			scaffoldSettingsPage();
+			break;
 		default:
 			break;
 	}

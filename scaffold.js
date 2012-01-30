@@ -512,6 +512,21 @@ function scaffoldUserProfile() {
 	return(currentUser);
 }
 
+/*
+ * Adds a new form element to user_settings.aspx for managing some of the
+ * Greasemonkey preferences.
+ */
+function scaffoldSettingsPage() {
+	settingsBody = $("#ctl00_lnkUser").parent().parent().parent();
+	settingsBody.append('<tr><td>&nbsp;Better Wolf Web Settings</td></tr>');
+	settingsBody.append('<tr><td><form action="javascript:return(false);" id="bww_settings_form" name="bww_settings_form"><table cellspacing="0" cellpadding="6" border="0" style="width:100%;border-collapse:collapse;" class="inbar" id="bww_settings_table"><tbody><tr id="debugmode" style="background-color:#E3E3E3;"></tr></tbody></table></td></tr></form>');
+	debugModeRow = $("#debugmode");
+	debugModeRow.append('<td style="width:220px;white-space:nowrap;" class="rightbold">Debug Mode :</td>');
+	debugModeRow.append('<td><input type="radio" name="debug_mode" value="true"><input type="radio" name="debug_mode" value="false"></td>');
+	debugMode = GM_getValue("debug_mode", false);
+	$("input[name='debug_mode'][value='" + debugMode + "']").attr("selected", "true");
+}
+
 function parsePhotoPage() {
 	photoImg = $('img#ctl00_imgPhoto');
 	photoTitle = document.title.substr(6);
