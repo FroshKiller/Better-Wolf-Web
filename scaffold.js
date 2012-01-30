@@ -23,8 +23,7 @@ User.prototype.postsLink = function() {
 function Post(postid, text, author, authorid) {
 	this.id = postid;
 	this.text = text;
-	this.author = author;
-	this.authorid = authorid;
+	this.author = new User(author, authorid);
 }
 
 function Thread(threadid, topic, author, authorid, section) {
@@ -163,7 +162,7 @@ function scaffoldMessageBoards() {
 		boardCells.eq(4).addClass('board_moderators').children('a').addClass('user_link');
 
 		threadList.push(
-				new MessageBoardListing(boardName, threadNum, threadTopic, userName, userNum, sectionNum)
+				new Thread(threadNum, threadTopic, userName, userNum, sectionNum)
 		);
 	});
 
@@ -246,6 +245,7 @@ function parseMessageBoardList() {
 	boardStatusImages.filter("img[src*='old']").each(function() {
 		$(this).parent().parent().parent().addClass("old_posts");
 	});
+
 	return(messageBoardThreadListing);
 }
 
@@ -349,94 +349,104 @@ function parseImagesInThread() {
 	allThreadImages.css("max-width", parseInt(window.innerWidth * 0.84, 10));
 }
 
-function parsePost(post) {
-	postBackground = post.attr("bgcolor");
+/*
+ * Scaffolds an individual post.
+ */
+function scaffoldPost(post) {
+	if (debugMode) {
+		console.groupCollapsed("Parsing post");
+	}
+
+	postBackgroundColor = post.attr("bgcolor");
 	postCells = post.children();
 
-	// Now, let's assign unique IDs to each post row based on the post's ID,
-	// which we can pull from their anchors. This is probably slow as shit, but
-	// it's fast enough for a first release.
-	postAnchor = postCells.eq(0).addClass("post_author_info").children('.post_author_info > a[name]');
-	postNum = postAnchor.attr("name");
+	/*
+	 * Assign unique IDs to each post row based on the post's own ID, which
+	 * comes from its anchor.
+	 */
+	authorCell = postCells.eq(0);
+	authorCell.addClass("post_author_info");
+	postAnchor = authorCell.children("a[name]");
+	postID = postAnchor.attr("name");
 
-	// Here is where we build the additional links under each poster's basic
-	// info: "send PM" and "view photos." As ugly as this is, it's actually
-	// quite speedy. It also extends a user's post count to a link to search
-	// for all his posts.
-	userLink = postCells.eq(0).children('span.small').children('a[href*="user_info"]');
+	/*
+	 * Build additional links in the poster's cell: "send PM" and "view photos."
+	 * TODO: Extend the post count as a link to search for all the users' posts.
+	 */
+	
+	userLink = authorCell.children("a[href*='user_info']");
 	userLink.addClass("user_link");
-	userNum = userLink.attr("href").split("=")[1];
-	userNameElement = userLink.parent().parent().children().filter('b:first');
-	userName = userNameElement.text();
-	userLink.attr("title", userName);
-	userLink.data("uid", userNum);
+	userID = userLink.attr("href").split("=")[1];
 	parentSpan = userLink.parent();
-	sendPM = $(document.createElement('a'));
-	sendPM.attr("href", "mail_compose.aspx?user=" + userNum);
-	sendPM.attr("title", "Send " + userName + " a private message");
-	sendPM.addClass("pm_link");
-	$(document.createElement('br')).appendTo(userLink.parent());
-	sendPM.text("send PM");
-	sendPM.appendTo(userLink.parent());
-	$(document.createElement('br')).appendTo(userLink.parent());
-		
-	viewPhotos = $(document.createElement('a'));
-	viewPhotos.attr("href", "photo_folder.aspx?user=" + userNum);
-	viewPhotos.attr("title", "View " + userName + "'s photo gallery");
-	viewPhotos.addClass("photo_gallery_link");
-	viewPhotos.text("view photos");
-	viewPhotos.appendTo(userLink.parent());
-		
-	$(userLink.get(0).previousSibling.previousSibling).wrap('<a title="Search for ' + userName + '\'s posts" class="plain search_posts_links" href="message_search.aspx?type=posts&username=' + encodeURI(userName) + '></a>');
+	userName = parentSpan.parent().children().filter("b:first").text();
+	userLink.attr("title", userName);
+	userLink.data("userid", userID);
+	sendPM = createLink("mail_compose.aspx?user=" + userID, "send PM", {
+		title: "Send " + userName + " a private message",
+		classes: ["pm_link"]
+	});
 
-	postContent = postCells.eq(1).html();
-	postCells.eq(1).empty().addClass("post_message").prepend('<div id="content_' + postNum + '" class="post_message_content content_by_' + userNum + '" style="margin-top: -1em;"></div>');
-	$('#content_' + postNum).append(postContent);
-	contentDiv = $('#content_' + postNum);
-	postFooter = contentDiv.children('p.small').remove();
-	post.wrap('<tbody id="post_' + postNum + '" class="tww_post post_by_' + userNum + '"></tbody>');
-	postBody = $('tbody#post_' + postNum).addClass('post_by_' + userNum);
-	postBody.append('<tr id="footer_' + postNum + '" class="post_footer"><td align="right"><div class="voting_links" style="float: left; display: none;"><a class="plain vote_link" style="font-size: 11px;" id="nsfw_' + postNum + '">[nsfw]</a></div></td></tr>');
+	$(document.createElement("br")).appendTo(parentSpan);
+	sendPM.appendTo(parentSpan);
+
+	viewPhotos = createLink("photo_folder.aspx?user=" + userID, "view photos", {
+		title: "View " + userName + "'s photo gallery",
+		classes: ["photo_gallery_link"]
+	});
+	viewPhotos.appendTo(parentSpan);
+
+	postContentCell = postCells.eq(1);
+	postContent = postContentCell.html();
+	postContentCell.empty();
+	postContentCell.addClass("post_message");
+	postContentCell.prepend('<div id="content_' + postID + '" class="post_message_content content_by_' + userID + '" style="margin-top: -1em;"></div>');
+	contentDiv = $("#content_" + postID);
+	contentDiv.append(postContent);
+	postFooter = contentDiv.children("p.small").remove();
+	post.wrap('<tbody id="post_' + postID + '" class="tww_post post_by_' + userID + '"></tbody>');
+	postBody = $("tbody#post_" + postID);
+	postBody.addClass("post_by_" + userID);
+	postBody.append('<tr id="footer_' + postID + '" class="post_footer"><td align="right"><div class="voting_links" style="float: left; display: none;"><a class="plain vote_link" style="font-size: 11px;" id="nsfw_' + postID + '">[nsfw]</a></div></td></tr>');
 	postText = contentDiv.text();
 	postCells.eq(0).attr("rowspan", "2");
 
-	postFooter.appendTo('#footer_' + postNum + ' > td:first-child').parent().css("height", "15px").attr("bgcolor", postBackground);
-	postBody.appendTo('#tww_post_table');
+	postFooter.appendTo('#footer_' + postID + ' > td:first-child').parent().css("height", "15px").attr("bgcolor", postBackgroundColor);
+	postBody.appendTo("#tww_post_table");
 
-	return(new Post(postNum, postText, userName, userNum));
+	return(new Post(postID, postText, userName, userID));
 }
 
 // Okay, I bet you can't guess what this one does.
-function parseCurrentThread() {
+function scaffoldThread() {
 	GM_deleteValue("current_section_id");
 	GM_deleteValue("current_thread_id");
 	GM_deleteValue("current_thread_page");
 
-	// What thread are we looking at? Get the topic number from the URL. We'll
-	// use it for other things, too, so let's save it.
-	tempParams = (location.search).match(/topic=\d+/);
-	threadNum = tempParams[0].split("=")[1];
-	GM_setValue("current_thread_id", threadNum);
+	parameters = JSON.parse(GM_getValue("current_parameters"));
+	threadID = parameters["topic"];
+	GM_setValue("current_thread_id", threadID); // TODO: Necessary?
 
-	tempParams = (location.search).match(/page=\d+/);
-	if (tempParams != null) {
-		pageNum = tempParams[0].split("=")[1];
-		GM_setValue("current_thread_page", pageNum);
+	if (parameters["page"] != undefined) {
+		GM_setValue("current_thread_page", parameters["page"]);
 	} else {
 		GM_setValue("current_thread_page", 1);
 	}
 
 	tempParams = $('#ctl00_lnkSection').attr('href').match(/section=\d+/);
-	sectionNum = tempParams[0].split("=")[1];
-	GM_setValue("current_section_id", sectionNum);
+	sectionID = tempParams[0].split("=")[1];
+	GM_setValue("current_section_id", sectionID);
 
-	postTable = $('table.inbar').attr('id', 'tww_post_table');
-	postTable.parent().parent().parent().parent().attr('id', 'tww_post_table_head');
-	postRows = $('#tww_post_table > tbody > tr');
-	$('#tww_post_table_head > tr > td').eq(1).attr('id', 'page_links');
+	postTable = $("table.inbar").attr("id", "tww_post_table");
+	postTable.parent().parent().parent().parent().attr("id", "tww_post_table_head");
+	postRows = $("#tww_post_table > tbody > tr");
+	$("#tww_post_table_head > tr > td").eq(1).attr("id", "page_links");
 
-	// What is the subject of the thread? Parse it out of the TITLE element.
-	threadSubject = document.title.substr(6);
+	/*
+	 * Parse the thread's topic out of the TITLE element.
+	 */
+	threadTopic = document.title.substr(6);
+	/*
+	 * For future sharing.
 	metaTitle = $(document.createElement("meta"));
 	metaTitle.attr("name", "title");
 	metaTitle.attr("content", threadSubject);
@@ -445,37 +455,43 @@ function parseCurrentThread() {
 	linkImage = $(document.createElement("link"));
 	linkImage.attr("rel", "image_src");
 	linkImage.attr("href", "images/logo.gif");
-	GM_setValue("current_thread_subject", threadSubject);
+	*/
+	GM_setValue("current_thread_subject", threadTopic);
 
 	usersInThread = [];
 	postsInThread = [];
 
 	// We'll class each post up so the data we want later will be easier to
 	// address.
-	postRows.each(function(){
-		parsedPost = parsePost($(this));
-		postsInThread.push(parsedPost);
-		usersInThread.push(new User(parsedPost.author, parsedPost.authorid));
+	postRows.each(function() {
+		post = scaffoldPost($(this));
+		postsInThread.push(post);
+		usersInThread.push(post.author); // Blocking is faster with a separate array.
 	});
 
+	/*
+	 * Again, future sharing.
 	threadDescr = $("div.post_message_content:first").text();
 	metaDescr.attr("content", threadDescr);
 
 	$("head").append(metaTitle).append(metaDescr).append(linkImage);
+	*/
 
-	$('#tww_post_table > tbody:first-child').remove();
+	$("#tww_post_table > tbody:first-child").remove();
 
-	parseImagesInThread();
+	//parseImagesInThread();
 
-
+	/*
+	 * For future voting.
+	 *
 	$(".vote_link").bind("click", function() {
-		voteValues = $(this).attr('id').split('_');
+		voteValues = $(this).attr("id").split("_");
 		post = voteValues[1];
 		vote = voteValues[0];
-		thread = GM_getValue('current_thread_id');
-		page = GM_getValue('current_thread_page');
-		section = GM_getValue('current_section_id');
-		voter = GM_getValue('username');
+		thread = GM_getValue("current_thread_id");
+		page = GM_getValue("current_thread_page");
+		section = GM_getValue("current_section_id");
+		voter = GM_getValue("username");
 		$.get('http://lolibrary.org/bww/vote.php', { post: post, vote: vote, thread: thread, voter: voter, section: section, page: page });
 	});
 
@@ -484,8 +500,9 @@ function parseCurrentThread() {
 			$('.voting_links').slideToggle('fast');
 		}
 	}, true);
+	*/
 
-	return([postsInThread, filterUniqueUsers(usersInThread)]);
+	return([postsInThread, filterUniquesInArray(usersInThread)]); // Firefox supports multiple returns.
 }
 
 function wolfWebDialog(id, title, content) {
