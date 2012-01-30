@@ -376,7 +376,8 @@ function scaffoldPost(post) {
 	
 	userLink = authorCell.children("a[href*='user_info']");
 	userLink.addClass("user_link");
-	userID = userLink.attr("href").split("=")[1];
+	userLinkURL = userLink.attr("href");
+	userID = userLinkURL.split("=")[1];
 	parentSpan = userLink.parent();
 	userName = parentSpan.parent().children().filter("b:first").text();
 	userLink.attr("title", userName);
