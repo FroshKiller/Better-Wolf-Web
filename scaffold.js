@@ -483,16 +483,24 @@ function parseUserListPage() {
 }
 
 function scaffoldUserProfile() {
+	if (debugMode) {
+		console.groupCollapsed("Scaffolding profile");
+	}
 	parameters = JSON.parse(GM_getValue("current_parameters"));
 	userID = parameters["user"];
 	userName = $("td.rightbold:contains('Username')").next().text();
 	currentUser = new User(userName, userID);
 
 	userProfileBody = $("#ctl00_tblInfo tbody").attr("id", "user_profile_body");
-	userProfileBody.append('<tr><td class="medium" align="center" colspan="2"><a id="block_link" href="#">opa</a></td></tr>');
+	// userProfileBody.append('<tr><td class="medium" align="center" colspan="2"><a id="block_link" href="#">opa</a></td></tr>');
 	userProfileRows = userProfileBody.children();
-	userProfileRows.filter(":even").attr("bgcolor", "#E3E3E3");
-	userProfileRows.filter(":odd").attr("bgcolor", "");
+	//userProfileRows.filter(":even").attr("bgcolor", "#E3E3E3");
+	//userProfileRows.filter(":odd").attr("bgcolor", "");
+
+	if (debugMode) {
+		console.dir(currentUser);
+		console.groupEnd("Scaffolding profile");
+	}
 	return(currentUser);
 }
 
