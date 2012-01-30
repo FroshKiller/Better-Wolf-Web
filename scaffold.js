@@ -234,7 +234,7 @@ function scaffoldThreads() {
 		threadCells.eq(0).addClass("thread_status");
 		threadLink = threadCells.eq(1).addClass("thread_topic").children("a:first").addClass("thread_link");
 		
-		threadID = topicLink.attr("href").split("=")[1];
+		threadID = threadLink.attr("href").split("=")[1];
 		threadTopic = threadLink.text();
 		threadLink.parent().parent().attr("id", "thread_" + threadID);
 
