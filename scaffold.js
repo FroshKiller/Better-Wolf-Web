@@ -354,7 +354,7 @@ function parseImagesInThread() {
  */
 function scaffoldPost(post) {
 	if (debugMode) {
-		console.groupCollapsed("Parsing post");
+		console.groupCollapsed("Scaffolding post");
 	}
 
 	postBackgroundColor = post.attr("bgcolor");
@@ -415,7 +415,12 @@ function scaffoldPost(post) {
 	postFooter.appendTo('#footer_' + postID + ' > td:first-child').parent().css("height", "15px").attr("bgcolor", postBackgroundColor);
 	postBody.appendTo("#tww_post_table");
 
-	return(new Post(postID, postText, userName, userID));
+	scaffoldedPost = new Post(postID, postText, userName, userID);
+	if (debugMode) {
+		console.dir(scaffoldedPost);
+		console.groupEnd("Scaffolding post");
+	}
+	return(scaffoldedPost);
 }
 
 // Okay, I bet you can't guess what this one does.

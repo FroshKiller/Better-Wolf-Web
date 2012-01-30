@@ -25,7 +25,8 @@ GM_registerMenuCommand("Set watched keywords",
 GM_registerMenuCommand("Toggle debug mode",
 	function() {
 		debugMode = GM_getValue("debug_mode", false);
-		debugMode = GM_setValue("debug_mode", !debugMode);
+		debugMode = !debugMode;
+		debugMode = GM_setValue("debug_mode", debugMode);
 
 		if (debugMode) {
 			alert("Debug mode on");
