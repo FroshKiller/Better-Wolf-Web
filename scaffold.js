@@ -73,7 +73,7 @@ function checkLogin() {
  */
 function scaffoldCommonElements() {
 	if (debugMode) {
-		console.group("Common elements");
+		console.groupCollapsed("Common elements");
 	}
 
 	getURLParameters();
