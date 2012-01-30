@@ -425,6 +425,11 @@ function scaffoldPost(post) {
 
 // Okay, I bet you can't guess what this one does.
 function scaffoldThread() {
+
+	if (debugMode) {
+		console.groupCollapsed("Scaffolding thread");
+	}
+
 	GM_deleteValue("current_section_id");
 	GM_deleteValue("current_thread_id");
 	GM_deleteValue("current_thread_page");
@@ -508,7 +513,9 @@ function scaffoldThread() {
 		}
 	}, true);
 	*/
-
+	if (debugMode) {
+		consoleGroupEnd("Scaffolding thread");
+	}
 	return([postsInThread, filterUniquesInArray(usersInThread)]); // Firefox supports multiple returns.
 }
 
