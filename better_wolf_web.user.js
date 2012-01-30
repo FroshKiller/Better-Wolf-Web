@@ -29,7 +29,7 @@ if (window.top != window.self) {
 
 	switch(location.pathname) {
 		case "/message.aspx":
-			scaffoldMessageBoards();
+			threadList = scaffoldMessageBoards();
 			break;
 		default:
 			break;

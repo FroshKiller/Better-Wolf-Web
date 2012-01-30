@@ -1,5 +1,7 @@
 /*
  * Adds a new object to an array stored as a Greasemonkey value.
+ * 
+ * TODO: Implement a case-insensitive sort.
  */
 function addGMValue(setting, string) {
 	if (debugMode) {
@@ -122,6 +124,7 @@ function getURLParameters() {
 
 /*
  * Replaces IFRAME elements with an anchor that links to the IFRAME's source.
+ * 
  * TODO: Might be faster done inline while processing posts.
  */
 function removeInlineFrames() {

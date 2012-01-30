@@ -27,19 +27,12 @@ function Post(postid, text, author, authorid) {
 	this.authorid = authorid;
 }
 
-function ThreadListing(threadid, topic, author, authorid) {
+function Thread(threadid, topic, author, authorid, section) {
 	this.id = threadid;
 	this.topic = topic;
 	this.author = author;
 	this.authorid = authorid;
-}
-
-function MessageBoardListing(board, threadid, topic, author, authorid) {
-	this.board = board;
-	this.threadid = threadid;
-	this.topic = topic;
-	this.author = author;
-	this.authorid = authorid;
+	this.section = section;
 }
 
 /*
@@ -103,6 +96,8 @@ function scaffoldMessageBoards() {
 		console.groupCollapsed("Message Boards");
 	}
 
+	threadList = [];
+
 	/*
 	 * First, identify the table containing the list of sections and add an ID
 	 * to it in case someone wants it later.
@@ -153,26 +148,31 @@ function scaffoldMessageBoards() {
 		userLink = boardCells.eq(3).children('a:last').addClass('user_link');
 
 		sectionNum = sectionLink.attr("href").split("=");
-		sectionNum = sectionNum[1].split("&");
-		$(this).attr("id", "section_" + sectionNum[0]);
+		sectionNum = sectionNum[1].split("&")[0];
+		$(this).attr("id", "section_" + sectionNum);
 		
 		threadNum = threadLink.attr("href").split("=");
-		threadNum = threadNum[1].split("&");
-		threadLink.attr("id", "thread_" + threadNum[0]);
+		threadNum = threadNum[1].split("&")[0];
+		threadLink.attr("id", "thread_" + threadNum);
 		threadTopic = threadLink.text();
 
-		userNum = userLink.attr("href").split("=");
-		userLink.addClass("user_" + userNum[1]);
+		userNum = userLink.attr("href").split("=")[1];
+		userLink.addClass("user_" + userNum);
 		userName = userLink.text();
 
 		boardCells.eq(4).addClass('board_moderators').children('a').addClass('user_link');
+
+		threadList.push(
+				new MessageBoardListing(boardName, threadNum, threadTopic, userName, userNum, sectionNum)
+		);
 	});
 
 	if (debugMode) {
 		console.timeEnd("Scaffolding section rows");
 		console.groupEnd("Message Boards");
 	}
-	
+
+	return(threadList);
 }
 
 // This function extracts semantically meaningful information from the message
