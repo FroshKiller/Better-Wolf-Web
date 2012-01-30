@@ -236,7 +236,7 @@ function scaffoldThreads() {
 		
 		threadID = topicLink.attr("href").split("=")[1];
 		threadTopic = threadLink.text();
-		topicLink.parent().parent().attr("id", "thread_" + threadID);
+		threadLink.parent().parent().attr("id", "thread_" + threadID);
 
 		threadCells.eq(2).addClass("thread_author");
 		
